@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import serial
 import time
 ser = serial.Serial('/dev/rfcomm0', 9600, timeout=0)
