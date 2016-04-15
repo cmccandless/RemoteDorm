@@ -1,0 +1,18 @@
+{
+"access_token": "<ACCESS TOKEN>",
+"access_token_secret": "<ACCESS TOKEN SECRET>",
+"consumer_key": "<CONSUMER KEY>",
+"consumer_secret": "<CONSUMER SECRET>",
+"validUsers": [
+{
+"screen_name": "<USERNAME>",
+"id": "<USER ID>"
+}
+],
+"serialPorts": [
+{
+"name": "<NAME>",
+"path": "<PATH>"
+}
+]
+}

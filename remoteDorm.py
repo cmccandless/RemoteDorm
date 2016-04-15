@@ -10,21 +10,17 @@ from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 
-access_token = "58977892-vAkjYFInL4YVplaZJ39vPRNLK2dQ096Y9drehtXq9"
-access_token_secret = "QywWir3zVBwjIfaXzCyqfl9A3fo1I25YTTpA7r2gvYDnr"
-consumer_key = "h24uOoQodangdg4oLa0gFccOC"
-consumer_secret = "VkQrwEKGW9kf66tLIKg8KqAYTnouLKmPZGEfabH4Pr6vJG6aGm"
+config = None
+with open('.config','r') as configFile:
+    config = json.loads(configFile.read().replace('\n',''))
 
-validUsers = {'CRMcCandless':'58977892'}
-
-ardPorts = {'light':'/dev/rfcomm0',}
+serialPorts = {}
+for port in config['serialPorts']:
+    serialPorts[port['name']]=port['path']
 
 ser = None
 try:
-    ser = [serial.Serial(ardPorts['light'],9600,timeout=0),]
-    ser[0].write('1'.encode())
-    time.sleep(1)
-    ser[0].write('0'.encode())    
+    ser = [serial.Serial(serialPorts['light'],9600,timeout=0),]
 except Exception as ex:
     print(str(ex))
     sys.exit(0)
@@ -74,7 +70,10 @@ class StdOutListener(StreamListener):
 if __name__ == '__main__':
 
     listener=StdOutListener()
-    auth = OAuthHandler(consumer_key,consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
+    auth = OAuthHandler(config['consumer_key'],config['consumer_secret'])
+    auth.set_access_token(config['access_token'], config['access_token_secret'])
     stream = Stream(auth,listener)
-    stream.filter(follow=[validUsers['CRMcCandless']],track=['remoteDorm'])
+    filterUsers = []
+    for user in config['validUsers']:
+        filterUsers.append(user['id'])
+    stream.filter(follow=filterUsers,track=['remoteDorm'])
