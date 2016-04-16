@@ -20,12 +20,16 @@ for port in config['serialPorts']:
 
 ser = None
 try:
-    ser = [serial.Serial(serialPorts['light'],9600,timeout=0),]
+    ser = {'light':serial.Serial(serialPorts['light'],9600,timeout=0),}
+          #'thermostat':serial.Serial(serialPorts['thermostat'],9600,timeout=0,
+          #'door':serial.Serial(serialPorts['door'],9600,timeout=0,}
 except Exception as ex:
     print(str(ex))
-    sys.exit(0)
 
 rgxLight = re.compile(r".*light\s+(?P<command>on|off)",re.I)
+rgxFan = re.compile(r".*fan\s+(?P<command>high|med(?:ium)?|low|auto|off)",re.I)
+rgxTemp = re.compile(r".*(?:temp(?:erature)?|thermo(?:stat)?)\s+(?P<command>up|down)",re.I)
+rgxLock = re.compile(r".*door\s+(?P<command>(?:un)?lock)",re.I)
 
 class StdOutListener(StreamListener):
     def on_data(self,data):
@@ -46,15 +50,43 @@ class StdOutListener(StreamListener):
         print('Valid Command...')
 
         if rgxLight.match(text):
-            serialPort = ser[0]
-            match = rgxLight.match(text)
+            serialPort = ser['light']
+            command = rgxLight.match(text).group('command')
             print('Turning light {}...'.format(match.group('command')))
             if match.group('command') == 'on':
                 var = '1'
             elif match.group('command') == 'off':
                 var = '0'
-        else:
-            print('No match')
+        if rgxTemp.match(text):
+            #serialPort = ser['thermostat']
+            command = rgxTemp.match(text).group('command')
+            print('Adjusting temperature {} 5 deg F...'.format(command))
+            if command == 'up':
+                var = '1'
+            elif command == 'down':
+                var = '0'
+        if rgxFan.match(text):
+            #serialPort = ser['thermostat']
+            command = rgxFan.match(text).group('command')
+            print('Turning fan to {}...'.format(command))
+            if command == 'off':
+                var = '2'
+            elif command == 'auto':
+                var = '3'
+            elif command == 'low':
+                var = '4'
+            elif command == 'med':
+                var = '5'
+            elif command == 'high':
+                var = '6'
+        if rgxLock.match(text):
+            #serialPort = ser['door']
+            command = rgxLight.match(text).group('command')
+            print('{}ing door...'.format(command.capitalize()))
+            if command == 'unlock':
+                var = '1'
+            elif command == 'lock':
+                var = '0'
 
         if serialPort:
             try:
