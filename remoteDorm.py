@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import sys
-import time
 import re
 import serial
 import time
@@ -27,7 +26,6 @@ except Exception as ex:
 
 rgxLight = re.compile(r".*light\s+(?P<command>on|off)",re.I)
 rgxTemp = re.compile(r".*(?:temp(?:erature)?|thermo(?:stat)?)\s+(?P<command>up|down)",re.I)
-rgxLock = re.compile(r".*door\s+(?P<command>(?:un)?lock)",re.I)
 
 class StdOutListener(StreamListener):
     def on_data(self,data):
